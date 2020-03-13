@@ -9,6 +9,8 @@ from timeit import default_timer as timer
 
 import random
 
+import json
+
 
 def proof_of_work(last_proof):
     """
@@ -25,7 +27,20 @@ def proof_of_work(last_proof):
     print("Searching for next proof")
     proof = 0
     #  TODO: Your code here
+    
+        # Use json.dumps to convert proof into a string
 
+    last_proof_string = json.dumps(last_proof)
+
+        # Use hashlib.sha256 to create a hash - it returns an object
+        # It requires a `bytes-like` object, which is what
+        # .encode() does.
+        # It converts the Python string into a byte string.
+
+    last_hash = hashlib.sha256(last_proof_string.encode()).hexdigest() 
+
+    while valid_proof(last_hash, proof) is False: # while I havent found a good proof
+        proof += 1 # keep looking for a number
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
 
@@ -40,7 +55,9 @@ def valid_proof(last_hash, proof):
     """
 
     # TODO: Your code here!
-    pass
+    guess = f'{proof}'.encode() # 
+    guess_hash = hashlib.sha256(guess).hexdigest() # turning the hash into a hexidecmal string ( makes it readable and useable)
+    return guess_hash[:6] == last_hash[-6:] # comparing my guess hash's first 6 characters to the last six characters of the lasthas
 
 
 if __name__ == '__main__':
@@ -48,7 +65,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         node = sys.argv[1]
     else:
-        node = "https://lambda-coin.herokuapp.com/api"
+        node = "https://lambda-coin-test-1.herokuapp.com/api"
 
     coins_mined = 0
 
